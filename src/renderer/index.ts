@@ -419,77 +419,110 @@ function applyFormat(kind: string): void {
 function moveSection(dir: 'up' | 'down'): void {
   const doc = view.state.doc;
   const head = view.state.selection.main.head;
-  const text = doc.toString();
-  const lines = text.split('\n');
-  const cursorLineNum = doc.lineAt(head).number - 1; // 0-indexed
+  const tree = syntaxTree(view.state);
 
-  const isHeader = (line: string) => /^#{1,6}\s/.test(line);
-
-  // Find current section: search backwards for nearest header
-  let sectionStart = cursorLineNum;
-  while (sectionStart > 0 && !isHeader(lines[sectionStart])) sectionStart--;
-  if (!isHeader(lines[sectionStart])) return; // cursor not under any header
-
-  const headerLevel = lines[sectionStart].match(/^(#+)/)![1].length;
-
-  // Find section end: next header at same or higher level (smaller or equal #)
-  let sectionEnd = sectionStart + 1;
-  while (sectionEnd < lines.length) {
-    const line = lines[sectionEnd];
-    if (isHeader(line)) {
-      const level = line.match(/^(#+)/)![1].length;
-      if (level <= headerLevel) break;
-    }
-    sectionEnd++;
-  }
-
-  const section = lines.slice(sectionStart, sectionEnd);
-
-  if (dir === 'up') {
-    // Find previous section start: header at level <= headerLevel before sectionStart
-    let prevStart = sectionStart - 1;
-    while (prevStart >= 0) {
-      if (isHeader(lines[prevStart])) {
-        const level = lines[prevStart].match(/^(#+)/)![1].length;
-        if (level <= headerLevel) break;
+  // Collect every ATX heading in document order with its line and level.
+  // Source-of-truth comes from the markdown syntax tree, not regex on raw
+  // text, so we can never accidentally slice a heading line in half.
+  type Heading = { line: number; level: number };
+  const headings: Heading[] = [];
+  tree.iterate({
+    enter(node) {
+      const m = node.name.match(/^ATXHeading(\d)$/);
+      if (m) {
+        headings.push({
+          line: doc.lineAt(node.from).number,
+          level: parseInt(m[1], 10),
+        });
+        return false;
       }
-      prevStart--;
+    },
+  });
+  if (headings.length === 0) return;
+
+  // Identify which heading the cursor is under: the latest heading whose
+  // line is at or before the cursor's line.
+  const cursorLine = doc.lineAt(head).number;
+  let curIdx = -1;
+  for (let i = 0; i < headings.length; i++) {
+    if (headings[i].line <= cursorLine) curIdx = i;
+    else break;
+  }
+  if (curIdx < 0) return; // cursor sits before any heading
+
+  const cur = headings[curIdx];
+
+  // A section spans from its heading line down to (but not including) the
+  // next heading at the same level or shallower. If none exists, the
+  // section runs to end of document.
+  const findSectionEndLine = (idx: number, level: number): number => {
+    for (let i = idx + 1; i < headings.length; i++) {
+      if (headings[i].level <= level) return headings[i].line - 1;
     }
-    if (prevStart < 0) return; // no section above
-    const newLines = [
-      ...lines.slice(0, prevStart),
-      ...section,
-      ...lines.slice(prevStart, sectionStart),
-      ...lines.slice(sectionEnd),
-    ];
-    const newText = newLines.join('\n');
+    return doc.lines;
+  };
+
+  const curEndLine = findSectionEndLine(curIdx, cur.level);
+
+  // Convert line numbers to character offsets. doc.line(N).from is the start
+  // of line N; the start of line (endLine+1) is the position right after
+  // the section's trailing newline.
+  const offsetOfLineStart = (lineNum: number) =>
+    lineNum > doc.lines ? doc.length : doc.line(lineNum).from;
+
+  const curFrom = offsetOfLineStart(cur.line);
+  const curTo = offsetOfLineStart(curEndLine + 1);
+
+  if (dir === 'down') {
+    // Find the next sibling-or-shallower heading.
+    let nextIdx = -1;
+    for (let i = curIdx + 1; i < headings.length; i++) {
+      if (headings[i].level <= cur.level) {
+        nextIdx = i;
+        break;
+      }
+    }
+    if (nextIdx < 0) return; // already last section at this level
+
+    const next = headings[nextIdx];
+    const nextEndLine = findSectionEndLine(nextIdx, next.level);
+    const nextFrom = offsetOfLineStart(next.line);
+    const nextTo = offsetOfLineStart(nextEndLine + 1);
+
+    const curText = doc.sliceString(curFrom, curTo);
+    const nextText = doc.sliceString(nextFrom, nextTo);
+
+    // Replace [curFrom, nextTo] with [next, cur] — atomic swap.
+    const cursorOffsetInSection = head - curFrom;
+    const newCursor = curFrom + nextText.length + cursorOffsetInSection;
     view.dispatch({
-      changes: { from: 0, to: doc.length, insert: newText },
-      selection: EditorSelection.cursor(
-        newLines.slice(0, prevStart + (cursorLineNum - sectionStart)).join('\n').length + (prevStart > 0 ? 1 : 0),
-      ),
+      changes: { from: curFrom, to: nextTo, insert: nextText + curText },
+      selection: EditorSelection.cursor(newCursor),
     });
   } else {
-    // Find next section end: section starting at sectionEnd
-    if (sectionEnd >= lines.length) return; // no section below
-    let nextEnd = sectionEnd + 1;
-    while (nextEnd < lines.length) {
-      const line = lines[nextEnd];
-      if (isHeader(line)) {
-        const level = line.match(/^(#+)/)![1].length;
-        if (level <= headerLevel) break;
+    // dir === 'up'
+    let prevIdx = -1;
+    for (let i = curIdx - 1; i >= 0; i--) {
+      if (headings[i].level <= cur.level) {
+        prevIdx = i;
+        break;
       }
-      nextEnd++;
     }
-    const newLines = [
-      ...lines.slice(0, sectionStart),
-      ...lines.slice(sectionEnd, nextEnd),
-      ...section,
-      ...lines.slice(nextEnd),
-    ];
-    const newText = newLines.join('\n');
+    if (prevIdx < 0) return; // already first section at this level
+
+    const prev = headings[prevIdx];
+    const prevFrom = offsetOfLineStart(prev.line);
+    // Previous section ends right where current section begins.
+    const prevTo = curFrom;
+
+    const curText = doc.sliceString(curFrom, curTo);
+    const prevText = doc.sliceString(prevFrom, prevTo);
+
+    const cursorOffsetInSection = head - curFrom;
+    const newCursor = prevFrom + cursorOffsetInSection;
     view.dispatch({
-      changes: { from: 0, to: doc.length, insert: newText },
+      changes: { from: prevFrom, to: curTo, insert: curText + prevText },
+      selection: EditorSelection.cursor(newCursor),
     });
   }
 }
