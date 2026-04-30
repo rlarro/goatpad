@@ -10,11 +10,13 @@ I spent about a month writing a book with Claude as a drafting partner. Half the
 
 GoatPad is the editor I wish I'd had on day one. Markdown in, markdown out, no surprises in between. It plays nicely with Claude's file workflow and stays out of your way.
 
+The companion repository **[goat-tools](https://github.com/rlarro/goat-tools)** has the markdown templates and the manuscript build script that came out of the same project.
+
 ## What it does
 
 - Clean markdown editing with live preview
 - Standard formatting controls (bold, italics, headers, lists, links)
-- One-key versioned saves — Cmd+Shift+S writes the next numbered draft
+- One-key versioned saves: Cmd+Shift+S writes the next numbered draft
 - File-based, no cloud sync, no account required
 - Round-trips cleanly to and from Claude without mangling your formatting
 - Native macOS app, runs offline
