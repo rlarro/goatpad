@@ -1,0 +1,50 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>GoatPad</title>
+    <link rel="stylesheet" href="./style.css" />
+  </head>
+  <body>
+    <div id="app">
+      <aside id="sidebar">
+        <div id="sidebar-header">
+          <button id="open-folder-btn" title="Open Folder (Cmd+Shift+O)">Open Folder…</button>
+        </div>
+        <div id="folder-name">No folder open</div>
+        <ul id="file-list"></ul>
+      </aside>
+      <main id="editor-pane">
+        <div id="toolbar">
+          <button data-fmt="bold" title="Bold (Cmd+B)"><b>B</b></button>
+          <button data-fmt="italic" title="Italic (Cmd+I)" class="btn-italic">I</button>
+          <span class="sep"></span>
+          <button data-fmt="h1" title="Heading 1 (Cmd+1)">H1</button>
+          <button data-fmt="h2" title="Heading 2 (Cmd+2)">H2</button>
+          <button data-fmt="h3" title="Heading 3 (Cmd+3)">H3</button>
+          <button data-fmt="p" title="Body / Plain Paragraph (Cmd+0)">P</button>
+          <span class="sep"></span>
+          <button data-fmt="ul" title="Bulleted List">• List</button>
+          <button data-fmt="ol" title="Numbered List">1. List</button>
+          <span class="sep"></span>
+          <button data-fmt="hr" title="Section Break — inserts * * * (Cmd+Shift+H)">—</button>
+          <span class="sep"></span>
+          <button id="source-toggle" title="Show raw markdown (Cmd+/)">Source</button>
+          <span class="sep"></span>
+          <span id="file-name-label">No file open</span>
+        </div>
+        <div id="editor"></div>
+        <div id="statusbar">
+          <span id="word-count">0 words</span>
+          <span class="sep-dot">·</span>
+          <span id="char-count">0 chars</span>
+          <span class="sep-dot">·</span>
+          <span id="line-info">Ln 1, Col 1</span>
+          <span id="dirty-indicator"></span>
+        </div>
+      </main>
+    </div>
+    <script type="module" src="./index.ts"></script>
+  </body>
+</html>

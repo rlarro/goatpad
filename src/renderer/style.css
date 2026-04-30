@@ -1,0 +1,250 @@
+:root {
+  --bg: #ffffff;
+  --bg-alt: #f7f7f5;
+  --border: #e5e5e0;
+  --fg: #1a1a1a;
+  --fg-muted: #6a6a66;
+  --accent: #5b6a3a;
+  --selection: #d8e3c0;
+  --font-ui: -apple-system, BlinkMacSystemFont, "SF Pro Text", system-ui, sans-serif;
+  --font-prose: "Iowan Old Style", "Palatino", "Georgia", serif;
+  --font-mono: "SF Mono", "Menlo", "Monaco", monospace;
+}
+
+* { box-sizing: border-box; }
+
+html, body {
+  margin: 0;
+  padding: 0;
+  height: 100%;
+  background: var(--bg);
+  color: var(--fg);
+  font-family: var(--font-ui);
+  -webkit-font-smoothing: antialiased;
+  overflow: hidden;
+}
+
+#app {
+  display: grid;
+  grid-template-columns: 240px 1fr;
+  height: 100vh;
+}
+
+aside#sidebar {
+  background: var(--bg-alt);
+  border-right: 1px solid var(--border);
+  display: flex;
+  flex-direction: column;
+  padding-top: 36px; /* leave room for traffic-light buttons */
+  overflow: hidden;
+}
+
+#sidebar-header {
+  padding: 8px 12px;
+}
+
+#sidebar-header button {
+  width: 100%;
+  padding: 6px 10px;
+  font-family: inherit;
+  font-size: 12px;
+  background: var(--bg);
+  border: 1px solid var(--border);
+  border-radius: 5px;
+  cursor: pointer;
+  color: var(--fg);
+}
+
+#sidebar-header button:hover {
+  background: #f0f0ec;
+}
+
+#folder-name {
+  padding: 4px 12px 8px;
+  font-size: 11px;
+  color: var(--fg-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+#file-list {
+  list-style: none;
+  margin: 0;
+  padding: 0 0 12px;
+  overflow-y: auto;
+  flex: 1;
+}
+
+#file-list li {
+  padding: 5px 14px;
+  font-size: 13px;
+  cursor: pointer;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  color: var(--fg);
+  border-left: 2px solid transparent;
+}
+
+#file-list li:hover {
+  background: #efefea;
+}
+
+#file-list li.active {
+  background: #e6e8de;
+  border-left-color: var(--accent);
+  font-weight: 500;
+}
+
+main#editor-pane {
+  display: grid;
+  grid-template-rows: auto 1fr auto;
+  height: 100vh;
+  background: var(--bg);
+  overflow: hidden;
+}
+
+#toolbar {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  padding: 4px 14px;
+  border-bottom: 1px solid var(--border);
+  -webkit-app-region: drag; /* let the toolbar drag the window on macOS */
+  padding-top: 32px;
+}
+
+#toolbar button {
+  -webkit-app-region: no-drag;
+  background: transparent;
+  border: 1px solid transparent;
+  border-radius: 4px;
+  padding: 4px 8px;
+  font-family: inherit;
+  font-size: 13px;
+  color: var(--fg);
+  cursor: pointer;
+  min-width: 28px;
+}
+
+#toolbar button:hover {
+  background: var(--bg-alt);
+  border-color: var(--border);
+}
+
+#toolbar .sep {
+  display: inline-block;
+  width: 1px;
+  height: 18px;
+  background: var(--border);
+  margin: 0 6px;
+}
+
+#file-name-label {
+  -webkit-app-region: no-drag;
+  margin-left: auto;
+  font-size: 12px;
+  color: var(--fg-muted);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 50%;
+}
+
+#editor {
+  overflow: auto;
+  background: var(--bg);
+}
+
+.cm-editor {
+  height: 100%;
+  font-family: var(--font-prose);
+  font-size: 17px;
+  line-height: 1.65;
+}
+
+.cm-editor.cm-focused {
+  outline: none;
+}
+
+.cm-scroller {
+  font-family: var(--font-prose);
+  padding: 32px 14% 60vh;
+  overflow: auto;
+}
+
+.cm-content {
+  caret-color: var(--accent);
+}
+
+.cm-line {
+  padding: 0;
+}
+
+.cm-selectionBackground,
+.cm-content ::selection {
+  background: var(--selection) !important;
+}
+
+/* Markdown header sizing — applied via syntax highlighting tags. */
+.cm-line .tok-heading1 { font-size: 1.9em; font-weight: 700; }
+.cm-line .tok-heading2 { font-size: 1.5em; font-weight: 700; }
+.cm-line .tok-heading3 { font-size: 1.25em; font-weight: 600; }
+.cm-line .tok-heading4 { font-size: 1.1em; font-weight: 600; }
+
+/* Live-preview rendered horizontal rule.
+   The source text (---, ***, * * *) is hidden via Decoration.replace,
+   and this line class draws a centered divider in its place. */
+.cm-line.cm-hr-rendered {
+  position: relative;
+  text-align: center;
+  color: transparent; /* In case any text snippet leaks through */
+}
+.cm-line.cm-hr-rendered::after {
+  content: "";
+  display: inline-block;
+  width: 30%;
+  border-top: 1px solid #c8c8c2;
+  vertical-align: middle;
+  position: relative;
+  top: -0.3em;
+}
+
+/* Italic toolbar button — serif italic glyph so capital I doesn't look like a slash. */
+button.btn-italic {
+  font-family: Georgia, "Iowan Old Style", serif;
+  font-style: italic;
+  font-size: 15px;
+}
+
+/* Source-mode body class hook: in case we want to tweak chrome when raw view is active. */
+body.mode-source #toolbar #source-toggle {
+  background: var(--bg-alt);
+  border-color: var(--border);
+}
+
+#statusbar {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 6px 16px;
+  border-top: 1px solid var(--border);
+  background: var(--bg-alt);
+  font-size: 11px;
+  color: var(--fg-muted);
+  font-variant-numeric: tabular-nums;
+}
+
+#statusbar .sep-dot { color: #c8c8c2; }
+
+#dirty-indicator {
+  margin-left: auto;
+  color: var(--accent);
+}
+
+#dirty-indicator.dirty::before {
+  content: "● unsaved";
+}

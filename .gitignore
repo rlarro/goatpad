@@ -1,0 +1,16 @@
+node_modules/
+out/
+dist/
+.DS_Store
+*.log
+.vscode/
+.idea/
+
+# Editor backups & user-specific overrides
+*.swp
+*.swo
+.env
+.env.local
+
+# GoatPad's own snapshot folder if it ever lands inside the repo by accident
+.goatpad/
