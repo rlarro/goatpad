@@ -6,7 +6,7 @@ A lightweight macOS markdown editor built for long-form writing projects done in
 
 ## Why this exists
 
-I spent the better part of a year writing an 80,000-word memoir with Claude as a drafting partner. Half the project was the writing. The other half was fighting Word format round-trips, lost section breaks, and smart quotes turning into escape sequences every time a file came back from an editing pass.
+I spent about a month writing a book with Claude as a drafting partner. Half the project was the writing. The other half was fighting Word format round-trips, lost section breaks, and smart quotes turning into escape sequences. One bad section move cost me an entire afternoon of cleanup. And the .docx files were eating up my Claude usage on every pass.
 
 GoatPad is the editor I wish I'd had on day one. Markdown in, markdown out, no surprises in between. It plays nicely with Claude's file workflow and stays out of your way.
 
