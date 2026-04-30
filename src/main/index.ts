@@ -318,6 +318,14 @@ function nextVersionPath(filePath: string): string {
 }
 
 app.whenReady().then(async () => {
+  // In dev mode the packaged .icns isn't applied, so the dock would show
+  // the default Electron hexagon. Set the icon explicitly so daily-use dev
+  // matches the eventual packaged build.
+  if (process.platform === 'darwin' && !app.isPackaged && app.dock) {
+    const iconPath = join(app.getAppPath(), 'resources', 'icon.png');
+    app.dock.setIcon(iconPath);
+  }
+
   registerIpc();
   buildMenu();
   createWindow();
