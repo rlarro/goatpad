@@ -14,6 +14,7 @@ GoatPad is the editor I wish I'd had on day one. Markdown in, markdown out, no s
 
 - Clean markdown editing with live preview
 - Standard formatting controls (bold, italics, headers, lists, links)
+- One-key versioned saves — Cmd+Shift+S writes the next numbered draft
 - File-based, no cloud sync, no account required
 - Round-trips cleanly to and from Claude without mangling your formatting
 - Native macOS app, runs offline
