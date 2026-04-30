@@ -21,9 +21,9 @@ GoatPad is the editor I wish I'd had on day one. Markdown in, markdown out, no s
 
 ## Install
 
-Download the latest release: [GoatPad.zip](../../releases/latest)
+Download the latest release from the [Releases page](../../releases/latest).
 
-Unzip and drag GoatPad.app to your Applications folder.
+Open the `.dmg`, drag GoatPad.app to your Applications folder, then eject the disk image. (A `.zip` is also available as an alternative.)
 
 **First launch:** macOS Gatekeeper will warn that GoatPad is from an unidentified developer. This is normal for unsigned open-source apps. To open it the first time, right-click (or Control-click) the app and choose **Open** from the menu, then click Open in the dialog. After that, it launches normally.
 
@@ -37,10 +37,10 @@ Requires Node.js 18+.
 git clone https://github.com/rlarro/goatpad.git
 cd goatpad
 npm install
-npm run build
+npm run dist
 ```
 
-The built app lands in `dist/`.
+The built `.dmg` and `.zip` land in `dist/`.
 
 ## License
 
