@@ -198,10 +198,27 @@ main#editor-pane {
 body.no-file-open #editor { display: none; }
 body.no-file-open #editor-empty-state { display: flex; }
 
+.empty-state-title {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 14px;
+  margin: 0 0 14px;
+}
+
+.empty-state-title h2 {
+  margin: 0;
+}
+
+.empty-state-mark {
+  height: 64px;
+  width: auto;
+  display: block;
+}
+
 .empty-state-inner h2 {
   font-family: var(--font-prose);
   font-size: 38px;
-  margin: 0 0 12px;
   color: var(--fg);
   font-weight: 600;
   letter-spacing: -0.01em;
