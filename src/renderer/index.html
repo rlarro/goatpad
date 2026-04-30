@@ -9,10 +9,10 @@
   <body>
     <div id="app">
       <aside id="sidebar">
-        <div id="sidebar-header">
-          <button id="open-folder-btn" title="Open Folder (Cmd+Shift+O)">Open Folder…</button>
-        </div>
-        <div id="folder-name">No folder open</div>
+        <button id="folder-name" title="Click to open or change folder (Cmd+Shift+O)" type="button">
+          <span id="folder-name-label">No folder open</span>
+          <span id="folder-name-hint">click to open a folder</span>
+        </button>
         <ul id="file-list"></ul>
       </aside>
       <main id="editor-pane">
@@ -35,6 +35,17 @@
           <span id="file-name-label">No file open</span>
         </div>
         <div id="editor"></div>
+        <div id="editor-empty-state">
+          <div class="empty-state-inner">
+            <h2>GoatPad</h2>
+            <p>No file open.</p>
+            <ul>
+              <li><kbd>⌘O</kbd> &nbsp;Open File</li>
+              <li><kbd>⌘⇧O</kbd> &nbsp;Open Folder</li>
+              <li><kbd>⌘N</kbd> &nbsp;New File</li>
+            </ul>
+          </div>
+        </div>
         <div id="statusbar">
           <span id="word-count">0 words</span>
           <span class="sep-dot">·</span>

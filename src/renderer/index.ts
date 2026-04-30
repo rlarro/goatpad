@@ -58,7 +58,8 @@ const state: DocState = {
 
 const editorRoot = document.getElementById('editor')!;
 const fileNameLabel = document.getElementById('file-name-label')!;
-const folderNameLabel = document.getElementById('folder-name')!;
+const folderNameBtn = document.getElementById('folder-name')!;
+const folderNameLabel = document.getElementById('folder-name-label')!;
 const fileListEl = document.getElementById('file-list')! as HTMLUListElement;
 const wordCountEl = document.getElementById('word-count')!;
 const charCountEl = document.getElementById('char-count')!;
@@ -135,9 +136,21 @@ function setDoc(content: string, path: string | null): void {
     changes: { from: 0, to: view.state.doc.length, insert: content },
     selection: EditorSelection.cursor(0),
   });
-  fileNameLabel.textContent = path ? path.split('/').pop()! : 'Untitled';
+  fileNameLabel.textContent = path ? path.split('/').pop()! : 'No file open';
   renderFileList();
+  updateChromeState();
   updateStatus();
+}
+
+function updateChromeState(): void {
+  document.body.classList.toggle('no-folder', state.folder === null);
+  document.body.classList.toggle('no-file-open', state.path === null);
+  if (state.folder === null) {
+    folderNameLabel.textContent = 'No folder open';
+  } else {
+    folderNameLabel.textContent = state.folder.split('/').pop() || state.folder;
+    folderNameBtn.title = state.folder;
+  }
 }
 
 function renderFileList(): void {
@@ -182,9 +195,8 @@ async function maybeAutoSwitchFolder(filePath: string): Promise<void> {
     const files = await window.api.listFolder(fileDir);
     state.folder = fileDir;
     state.files = files;
-    folderNameLabel.textContent = fileDir.split('/').pop() || fileDir;
-    folderNameLabel.title = fileDir;
     renderFileList();
+    updateChromeState();
   } catch {
     /* directory unreadable — leave existing sidebar */
   }
@@ -195,9 +207,8 @@ async function handleOpenFolder(): Promise<void> {
   if (!result) return;
   state.folder = result.path;
   state.files = result.files;
-  folderNameLabel.textContent = result.path.split('/').pop() || result.path;
-  folderNameLabel.title = result.path;
   renderFileList();
+  updateChromeState();
 }
 
 async function handleSave(): Promise<void> {
@@ -515,7 +526,7 @@ document.querySelectorAll<HTMLButtonElement>('#toolbar button[data-fmt]').forEac
 });
 
 sourceToggleBtn.addEventListener('click', toggleSourceMode);
-document.getElementById('open-folder-btn')?.addEventListener('click', handleOpenFolder);
+folderNameBtn.addEventListener('click', handleOpenFolder);
 
 window.api.onMenu('menu:new-file', async () => {
   if (await maybeWarnUnsaved() === 'cancel') return;
@@ -539,12 +550,11 @@ window.api.onMenu('menu:font', (kind: unknown) => setFont(kind as FontKind));
       const files = await window.api.listFolder(recent.lastFolder);
       state.folder = recent.lastFolder;
       state.files = files;
-      folderNameLabel.textContent = recent.lastFolder.split('/').pop() || recent.lastFolder;
-      folderNameLabel.title = recent.lastFolder;
       renderFileList();
     } catch {
       /* folder gone — ignore */
     }
   }
+  updateChromeState();
   updateStatus();
 })();

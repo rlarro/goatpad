@@ -39,35 +39,60 @@ aside#sidebar {
   overflow: hidden;
 }
 
-#sidebar-header {
-  padding: 8px 12px;
-}
-
-#sidebar-header button {
-  width: 100%;
-  padding: 6px 10px;
+button#folder-name {
+  appearance: none;
+  background: transparent;
+  border: none;
+  border-bottom: 1px solid transparent;
+  text-align: left;
+  padding: 10px 14px 10px;
   font-family: inherit;
-  font-size: 12px;
-  background: var(--bg);
-  border: 1px solid var(--border);
-  border-radius: 5px;
   cursor: pointer;
-  color: var(--fg);
-}
-
-#sidebar-header button:hover {
-  background: #f0f0ec;
-}
-
-#folder-name {
-  padding: 4px 12px 8px;
-  font-size: 11px;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
   color: var(--fg-muted);
+  outline: none;
+}
+
+button#folder-name:hover {
+  background: #efefea;
+  border-bottom-color: var(--border);
+}
+
+#folder-name-label {
+  font-size: 11px;
   text-transform: uppercase;
-  letter-spacing: 0.04em;
+  letter-spacing: 0.05em;
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
+  color: var(--fg);
+  font-weight: 500;
+}
+
+#folder-name-hint {
+  font-size: 10px;
+  color: var(--fg-muted);
+  opacity: 0;
+  transition: opacity 120ms;
+}
+
+button#folder-name:hover #folder-name-hint {
+  opacity: 1;
+}
+
+/* When no folder is loaded, swap the label so it serves as a CTA. */
+body.no-folder #folder-name-label {
+  color: var(--fg-muted);
+  font-weight: 400;
+  text-transform: none;
+  letter-spacing: 0;
+  font-size: 13px;
+}
+
+body.no-folder #folder-name-hint {
+  opacity: 1;
 }
 
 #file-list {
@@ -157,6 +182,63 @@ main#editor-pane {
 #editor {
   overflow: auto;
   background: var(--bg);
+}
+
+/* Empty state shown over the editor when no file is open. */
+#editor-empty-state {
+  display: none;
+  align-items: center;
+  justify-content: center;
+  background: var(--bg);
+  color: var(--fg-muted);
+  text-align: center;
+  padding: 40px;
+}
+
+body.no-file-open #editor { display: none; }
+body.no-file-open #editor-empty-state { display: flex; }
+
+.empty-state-inner h2 {
+  font-family: var(--font-prose);
+  font-size: 38px;
+  margin: 0 0 12px;
+  color: var(--fg);
+  font-weight: 600;
+  letter-spacing: -0.01em;
+}
+
+.empty-state-inner p {
+  margin: 0 0 26px;
+  font-size: 17px;
+}
+
+.empty-state-inner ul {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: inline-block;
+  text-align: left;
+}
+
+.empty-state-inner li {
+  font-size: 15px;
+  margin: 8px 0;
+  color: var(--fg-muted);
+  line-height: 1.6;
+}
+
+.empty-state-inner kbd {
+  display: inline-block;
+  font-family: "SF Mono", Menlo, monospace;
+  font-size: 13px;
+  background: var(--bg-alt);
+  border: 1px solid var(--border);
+  border-bottom-width: 2px;
+  border-radius: 5px;
+  padding: 3px 8px;
+  color: var(--fg);
+  min-width: 48px;
+  text-align: center;
 }
 
 .cm-editor {
