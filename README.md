@@ -25,7 +25,15 @@ Download the latest release from the [Releases page](../../releases/latest).
 
 Open the `.dmg`, drag GoatPad.app to your Applications folder, then eject the disk image. (A `.zip` is also available as an alternative.)
 
-**First launch:** macOS Gatekeeper will warn that GoatPad is from an unidentified developer. This is normal for unsigned open-source apps. To open it the first time, right-click (or Control-click) the app and choose **Open** from the menu, then click Open in the dialog. After that, it launches normally.
+**First launch:** macOS Gatekeeper will block GoatPad with a dialog saying *"Apple could not verify GoatPad is free of malware."* This is normal for unsigned open-source apps. To allow it:
+
+1. Click **Done** in the blocking dialog
+2. Open **System Settings → Privacy & Security**
+3. Scroll down to the **Security** section (near the bottom of the page)
+4. Find the message about GoatPad being blocked and click **Open Anyway**
+5. Confirm with your password or Touch ID
+
+After that, GoatPad launches normally every time you open it.
 
 Universal binary, runs on both Intel and Apple Silicon Macs.
 
