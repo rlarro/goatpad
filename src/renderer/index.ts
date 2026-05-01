@@ -12,6 +12,7 @@ declare global {
     api: {
       openFile: () => Promise<{ path: string; content: string } | null>;
       openFolder: () => Promise<{ path: string; files: { name: string; path: string; mtimeMs: number }[] } | null>;
+      saveAs: () => Promise<string | null>;
       listFolder: (path: string) => Promise<{ name: string; path: string; mtimeMs: number }[]>;
       readFile: (path: string) => Promise<string>;
       writeFile: (path: string, content: string) => Promise<{ path: string }>;
@@ -46,6 +47,7 @@ interface DocState {
   pristine: string;
   folder: string | null;
   files: { name: string; path: string; mtimeMs: number }[];
+  untitled: boolean;
 }
 
 const state: DocState = {
@@ -54,6 +56,7 @@ const state: DocState = {
   pristine: '',
   folder: null,
   files: [],
+  untitled: false,
 };
 
 const editorRoot = document.getElementById('editor')!;
@@ -129,14 +132,19 @@ function updateStatus(): void {
   dirtyEl.classList.toggle('dirty', dirty);
 }
 
-function setDoc(content: string, path: string | null): void {
+function setDoc(content: string, path: string | null, untitled = false): void {
   state.path = path;
+  state.untitled = untitled;
   state.pristine = content;
   view.dispatch({
     changes: { from: 0, to: view.state.doc.length, insert: content },
     selection: EditorSelection.cursor(0),
   });
-  fileNameLabel.textContent = path ? path.split('/').pop()! : 'No file open';
+  fileNameLabel.textContent = path
+    ? path.split('/').pop()!
+    : untitled
+      ? 'Untitled'
+      : 'No file open';
   renderFileList();
   updateChromeState();
   updateStatus();
@@ -144,7 +152,10 @@ function setDoc(content: string, path: string | null): void {
 
 function updateChromeState(): void {
   document.body.classList.toggle('no-folder', state.folder === null);
-  document.body.classList.toggle('no-file-open', state.path === null);
+  // The empty welcome state should only show when there's no file open AND no
+  // untitled buffer in progress. After Cmd+N, state.untitled is true and we
+  // want the editor visible so the user can immediately start typing.
+  document.body.classList.toggle('no-file-open', state.path === null && !state.untitled);
   if (state.folder === null) {
     folderNameLabel.textContent = 'No folder open';
   } else {
@@ -213,8 +224,13 @@ async function handleOpenFolder(): Promise<void> {
 
 async function handleSave(): Promise<void> {
   if (!state.path) {
-    alert('No file open. Use Open File… or Open Folder… first.');
-    return;
+    // Untitled buffer — prompt for save location via standard macOS dialog.
+    const newPath = await window.api.saveAs();
+    if (!newPath) return; // user cancelled
+    state.path = newPath;
+    state.untitled = false;
+    fileNameLabel.textContent = newPath.split('/').pop()!;
+    await maybeAutoSwitchFolder(newPath);
   }
   const content = view.state.doc.toString();
   await window.api.snapshot(state.path, content);
@@ -226,8 +242,8 @@ async function handleSave(): Promise<void> {
 
 async function handleSaveNextVersion(): Promise<void> {
   if (!state.path) {
-    alert('No file open. Use Open File… or Open Folder… first.');
-    return;
+    // Untitled buffer has no path to increment from — fall back to Save As.
+    return handleSave();
   }
   const content = view.state.doc.toString();
   await window.api.snapshot(state.path, content);
@@ -563,7 +579,10 @@ folderNameBtn.addEventListener('click', handleOpenFolder);
 
 window.api.onMenu('menu:new-file', async () => {
   if (await maybeWarnUnsaved() === 'cancel') return;
-  setDoc('', null);
+  // untitled = true: editor stays visible, fileNameLabel shows "Untitled",
+  // ready for the user to type into. Save will prompt for a path.
+  setDoc('', null, true);
+  view.focus();
 });
 window.api.onMenu('menu:open-file', handleOpenFile);
 window.api.onMenu('menu:open-folder', handleOpenFolder);

@@ -7,6 +7,7 @@ type RecentState = { recentFiles: string[]; recentFolders: string[]; lastFolder:
 const api = {
   openFile: (): Promise<FileResult> => ipcRenderer.invoke('dialog:open-file'),
   openFolder: (): Promise<FolderResult> => ipcRenderer.invoke('dialog:open-folder'),
+  saveAs: (): Promise<string | null> => ipcRenderer.invoke('dialog:save-as'),
   listFolder: (path: string) => ipcRenderer.invoke('folder:list', path),
   readFile: (path: string): Promise<string> => ipcRenderer.invoke('file:read', path),
   writeFile: (path: string, content: string) => ipcRenderer.invoke('file:write', path, content),

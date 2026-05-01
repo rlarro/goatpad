@@ -243,6 +243,16 @@ function registerIpc(): void {
     return { path: folderPath, files };
   });
 
+  ipcMain.handle('dialog:save-as', async () => {
+    if (!mainWindow) return null;
+    const result = await dialog.showSaveDialog(mainWindow, {
+      filters: [{ name: 'Markdown', extensions: ['md', 'markdown', 'txt'] }],
+      defaultPath: 'untitled.md',
+    });
+    if (result.canceled || !result.filePath) return null;
+    return result.filePath;
+  });
+
   ipcMain.handle('folder:list', async (_e, folderPath: string) => {
     return await listMarkdownFiles(folderPath);
   });
