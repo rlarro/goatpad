@@ -10,6 +10,8 @@ I spent about a month writing a book with Claude as a drafting partner. Half the
 
 GoatPad is the editor I wish I'd had on day one. Markdown in, markdown out, no surprises in between. It plays nicely with Claude's file workflow and stays out of your way.
 
+I wrote about the full project in *["From Idea to Published Book in 30 Days"](https://rlarro.substack.com/p/from-idea-to-published-book-in-30)* on Substack.
+
 The companion repository **[goat-tools](https://github.com/rlarro/goat-tools)** has the markdown templates and the manuscript build script that came out of the same project.
 
 ## What it does
