@@ -37,6 +37,7 @@ aside#sidebar {
   flex-direction: column;
   padding-top: 36px; /* leave room for traffic-light buttons */
   overflow: hidden;
+  -webkit-app-region: drag;
 }
 
 button#folder-name {
@@ -53,6 +54,7 @@ button#folder-name {
   gap: 2px;
   color: var(--fg-muted);
   outline: none;
+  -webkit-app-region: no-drag;
 }
 
 button#folder-name:hover {
@@ -101,6 +103,7 @@ body.no-folder #folder-name-hint {
   padding: 0 0 12px;
   overflow-y: auto;
   flex: 1;
+  -webkit-app-region: no-drag;
 }
 
 #file-list li {
