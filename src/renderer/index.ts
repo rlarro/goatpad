@@ -367,12 +367,32 @@ function applyFormat(kind: string): void {
       view.focus();
       return;
     }
-    const insert = `${lead}${left}${inner}${right}${trail}`;
-    const innerStart = from + lead.length + left.length;
-    view.dispatch({
-      changes: { from, to, insert },
-      selection: EditorSelection.range(innerStart, innerStart + inner.length),
-    });
+
+    let insert: string;
+    if (inner.includes('\n\n')) {
+      // Multi-paragraph selection: wrap each paragraph separately. A single
+      // inline span cannot cross a blank line (CommonMark block boundary).
+      const parts = inner.split(/(\n\n+)/);
+      const wrappedParts = parts.map((part, i) => {
+        if (i % 2 === 1 || !part.trim()) return part; // blank-line separator or empty
+        const pLead = part.match(/^\s*/)![0];
+        const pTrail = part.match(/\s*$/)![0];
+        const pInner = part.slice(pLead.length, part.length - pTrail.length);
+        return pInner ? `${pLead}${left}${pInner}${right}${pTrail}` : part;
+      });
+      insert = `${lead}${wrappedParts.join('')}${trail}`;
+      view.dispatch({
+        changes: { from, to, insert },
+        selection: EditorSelection.range(from + lead.length, from + insert.length - trail.length),
+      });
+    } else {
+      insert = `${lead}${left}${inner}${right}${trail}`;
+      const innerStart = from + lead.length + left.length;
+      view.dispatch({
+        changes: { from, to, insert },
+        selection: EditorSelection.range(innerStart, innerStart + inner.length),
+      });
+    }
     view.focus();
   };
 

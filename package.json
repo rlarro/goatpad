@@ -1,6 +1,6 @@
 {
   "name": "goatpad",
-  "version": "0.1.1",
+  "version": "0.1.2",
   "description": "A local markdown editor for clean round-trips with Claude. Built for long-form AI-assisted writing.",
   "main": "out/main/index.js",
   "author": "Rene Larro",
