@@ -37,7 +37,7 @@ Open the `.dmg`, drag GoatPad.app to your Applications folder, then eject the di
 4. Find the message about GoatPad being blocked and click **Open Anyway**
 5. Confirm with your password or Touch ID
 
-After that, GoatPad launches normally every time you open it.
+After that, GoatPad launches normally. Note: you'll need to repeat this after each update, since macOS re-checks the signature whenever the binary changes.
 
 Universal binary, runs on both Intel and Apple Silicon Macs.
 
