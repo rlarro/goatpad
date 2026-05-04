@@ -1,12 +1,45 @@
 import { app, BrowserWindow, ipcMain, dialog, Menu, shell } from 'electron';
 import { dirname, join, basename, extname, resolve as pathResolve } from 'node:path';
-import { promises as fs } from 'node:fs';
+import { promises as fs, watch as fsWatch, FSWatcher } from 'node:fs';
 
 const isDev = !app.isPackaged;
 const PRELOAD = join(__dirname, '../preload/index.js');
 const RENDERER_HTML = join(__dirname, '../renderer/index.html');
 
 let mainWindow: BrowserWindow | null = null;
+
+let folderWatcher: FSWatcher | null = null;
+let watchedFolder: string | null = null;
+let watchDebounce: ReturnType<typeof setTimeout> | null = null;
+
+function startWatching(folderPath: string): void {
+  if (watchedFolder === folderPath) return;
+  stopWatching();
+  watchedFolder = folderPath;
+  try {
+    folderWatcher = fsWatch(folderPath, () => {
+      if (watchDebounce) clearTimeout(watchDebounce);
+      watchDebounce = setTimeout(async () => {
+        try {
+          const files = await listMarkdownFiles(folderPath);
+          mainWindow?.webContents.send('folder:changed', files);
+        } catch {
+          stopWatching();
+        }
+      }, 150);
+    });
+    folderWatcher.on('error', () => stopWatching());
+  } catch {
+    /* folder unreadable — skip watching */
+  }
+}
+
+function stopWatching(): void {
+  if (watchDebounce) { clearTimeout(watchDebounce); watchDebounce = null; }
+  folderWatcher?.close();
+  folderWatcher = null;
+  watchedFolder = null;
+}
 
 const RECENT_FILE = () => join(app.getPath('userData'), 'recent.json');
 
@@ -240,6 +273,7 @@ function registerIpc(): void {
     const folderPath = result.filePaths[0];
     const files = await listMarkdownFiles(folderPath);
     await pushRecent('folder', folderPath);
+    startWatching(folderPath);
     return { path: folderPath, files };
   });
 
@@ -254,6 +288,7 @@ function registerIpc(): void {
   });
 
   ipcMain.handle('folder:list', async (_e, folderPath: string) => {
+    startWatching(folderPath);
     return await listMarkdownFiles(folderPath);
   });
 
@@ -346,5 +381,6 @@ app.whenReady().then(async () => {
 });
 
 app.on('window-all-closed', () => {
+  stopWatching();
   if (process.platform !== 'darwin') app.quit();
 });

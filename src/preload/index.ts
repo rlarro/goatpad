@@ -22,6 +22,12 @@ const api = {
     ipcRenderer.on(channel, wrapped);
     return () => ipcRenderer.removeListener(channel, wrapped);
   },
+  onFolderChanged: (handler: (files: { name: string; path: string; mtimeMs: number }[]) => void) => {
+    const wrapped = (_e: Electron.IpcRendererEvent, files: unknown) =>
+      handler(files as { name: string; path: string; mtimeMs: number }[]);
+    ipcRenderer.on('folder:changed', wrapped);
+    return () => ipcRenderer.removeListener('folder:changed', wrapped);
+  },
 };
 
 contextBridge.exposeInMainWorld('api', api);

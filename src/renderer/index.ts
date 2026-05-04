@@ -21,6 +21,7 @@ declare global {
       getRecent: () => Promise<{ recentFiles: string[]; recentFolders: string[]; lastFolder: string | null }>;
       selftestRoundtrip: (path: string) => Promise<{ identical: boolean; originalBytes: number; reEncodedBytes: number }>;
       onMenu: (channel: string, handler: (...args: unknown[]) => void) => () => void;
+      onFolderChanged: (handler: (files: { name: string; path: string; mtimeMs: number }[]) => void) => () => void;
     };
   }
 }
@@ -614,6 +615,11 @@ window.api.onMenu('menu:format', (kind: unknown) => applyFormat(kind as string))
 window.api.onMenu('menu:section-move', (dir: unknown) => moveSection(dir as 'up' | 'down'));
 window.api.onMenu('menu:toggle-source', toggleSourceMode);
 window.api.onMenu('menu:font', (kind: unknown) => setFont(kind as FontKind));
+
+window.api.onFolderChanged((files) => {
+  state.files = files;
+  renderFileList();
+});
 
 (async () => {
   const recent = await window.api.getRecent();
