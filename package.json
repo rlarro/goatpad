@@ -1,6 +1,6 @@
 {
   "name": "goatpad",
-  "version": "0.1.4",
+  "version": "0.1.5",
   "description": "A local markdown editor for clean round-trips with Claude. Built for long-form AI-assisted writing.",
   "main": "out/main/index.js",
   "author": "Rene Larro",
@@ -28,7 +28,8 @@
     "@codemirror/search": "^6.5.8",
     "@codemirror/state": "^6.5.0",
     "@codemirror/view": "^6.36.1",
-    "@lezer/markdown": "^1.4.0"
+    "@lezer/markdown": "^1.4.0",
+    "docx": "^9.6.1"
   },
   "devDependencies": {
     "@types/node": "^22.10.5",
@@ -52,8 +53,14 @@
       "category": "public.app-category.productivity",
       "icon": "resources/icon.png",
       "target": [
-        { "target": "dmg", "arch": "universal" },
-        { "target": "zip", "arch": "universal" }
+        {
+          "target": "dmg",
+          "arch": "universal"
+        },
+        {
+          "target": "zip",
+          "arch": "universal"
+        }
       ]
     }
   }

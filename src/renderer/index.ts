@@ -13,6 +13,7 @@ declare global {
       openFile: () => Promise<{ path: string; content: string } | null>;
       openFolder: () => Promise<{ path: string; files: { name: string; path: string; mtimeMs: number }[] } | null>;
       saveAs: () => Promise<string | null>;
+      exportDocx: (markdown: string, suggestedName: string) => Promise<string | null>;
       listFolder: (path: string) => Promise<{ name: string; path: string; mtimeMs: number }[]>;
       readFile: (path: string) => Promise<string>;
       writeFile: (path: string, content: string) => Promise<{ path: string }>;
@@ -254,6 +255,13 @@ async function handleSaveNextVersion(): Promise<void> {
   fileNameLabel.textContent = result.path.split('/').pop()!;
   await refreshFolder();
   updateStatus();
+}
+
+async function handleExportDocx(): Promise<void> {
+  if (!state.path && !state.untitled) return; // nothing open
+  const content = view.state.doc.toString();
+  const suggested = state.path ? state.path.split('/').pop()! : 'untitled.md';
+  await window.api.exportDocx(content, suggested);
 }
 
 async function refreshFolder(): Promise<void> {
@@ -609,6 +617,7 @@ window.api.onMenu('menu:open-file', handleOpenFile);
 window.api.onMenu('menu:open-folder', handleOpenFolder);
 window.api.onMenu('menu:save', handleSave);
 window.api.onMenu('menu:save-next-version', handleSaveNextVersion);
+window.api.onMenu('menu:export-docx', handleExportDocx);
 window.api.onMenu('menu:find', () => openSearchPanel(view));
 window.api.onMenu('menu:replace', () => openSearchPanel(view));
 window.api.onMenu('menu:format', (kind: unknown) => applyFormat(kind as string));

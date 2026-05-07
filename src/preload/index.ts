@@ -8,6 +8,8 @@ const api = {
   openFile: (): Promise<FileResult> => ipcRenderer.invoke('dialog:open-file'),
   openFolder: (): Promise<FolderResult> => ipcRenderer.invoke('dialog:open-folder'),
   saveAs: (): Promise<string | null> => ipcRenderer.invoke('dialog:save-as'),
+  exportDocx: (markdown: string, suggestedName: string): Promise<string | null> =>
+    ipcRenderer.invoke('file:export-docx', markdown, suggestedName),
   listFolder: (path: string) => ipcRenderer.invoke('folder:list', path),
   readFile: (path: string): Promise<string> => ipcRenderer.invoke('file:read', path),
   writeFile: (path: string, content: string) => ipcRenderer.invoke('file:write', path, content),

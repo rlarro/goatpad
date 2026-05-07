@@ -1,6 +1,7 @@
 import { app, BrowserWindow, ipcMain, dialog, Menu, shell } from 'electron';
 import { dirname, join, basename, extname, resolve as pathResolve } from 'node:path';
 import { promises as fs, watch as fsWatch, FSWatcher } from 'node:fs';
+import { markdownToDocxBuffer } from './export-docx';
 
 const isDev = !app.isPackaged;
 const PRELOAD = join(__dirname, '../preload/index.js');
@@ -161,6 +162,12 @@ function buildMenu(): void {
           click: () => send('menu:save-next-version'),
         },
         { type: 'separator' },
+        {
+          label: 'Export as Word (.docx)…',
+          accelerator: 'CmdOrCtrl+E',
+          click: () => send('menu:export-docx'),
+        },
+        { type: 'separator' },
         ...(isMac
           ? [{ role: 'close' as const }]
           : [{ role: 'quit' as const }]),
@@ -284,6 +291,18 @@ function registerIpc(): void {
       defaultPath: 'untitled.md',
     });
     if (result.canceled || !result.filePath) return null;
+    return result.filePath;
+  });
+
+  ipcMain.handle('file:export-docx', async (_e, markdown: string, suggestedName: string) => {
+    if (!mainWindow) return null;
+    const result = await dialog.showSaveDialog(mainWindow, {
+      defaultPath: suggestedName.replace(/\.(md|markdown|txt)$/, '.docx'),
+      filters: [{ name: 'Word Document', extensions: ['docx'] }],
+    });
+    if (result.canceled || !result.filePath) return null;
+    const buffer = await markdownToDocxBuffer(markdown);
+    await fs.writeFile(result.filePath, buffer);
     return result.filePath;
   });
 
